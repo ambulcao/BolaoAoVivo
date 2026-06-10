@@ -18,7 +18,7 @@ teams_by_id = {team["id"]: team for group in groups for team in group["teams"]}
 
 if not picks:
     st.info("Você ainda não salvou nenhum palpite.")
-    st.page_link("app_pages/1_Palpites.py", label="📝 Fazer palpites")
+    st.page_link("pages/1_Palpites.py", label="📝 Fazer palpites")
 else:
     st.subheader("Seus palpites por grupo")
 

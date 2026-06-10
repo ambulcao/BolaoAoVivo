@@ -20,8 +20,8 @@ st.markdown(
 if st.session_state["participant_id"]:
     st.success(f"Você está participando como **{st.session_state['participant_name']}**.")
     st.write("Use o menu à esquerda para fazer seus palpites e ver o resumo do seu bolão.")
-    st.page_link("app_pages/1_Palpites.py", label="📝 Fazer/editar palpites", icon="📝")
-    st.page_link("app_pages/2_Meu_Bolao.py", label="🏆 Meu bolão", icon="🏆")
+    st.page_link("pages/1_Palpites.py", label="📝 Fazer/editar palpites", icon="📝")
+    st.page_link("pages/2_Meu_Bolao.py", label="🏆 Meu bolão", icon="🏆")
 
     if st.button("Sair / trocar participante"):
         st.session_state["participant_id"] = None
