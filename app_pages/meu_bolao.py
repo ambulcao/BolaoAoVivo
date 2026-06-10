@@ -1,12 +1,11 @@
 import streamlit as st
 
 from utils.db import get_groups_with_teams, get_predictions
-
-st.set_page_config(page_title="Meu Bolão - Bolão 2026", page_icon="🏆", layout="wide")
+from utils.nav import palpites_page, home_page
 
 if not st.session_state.get("participant_id"):
     st.warning("Você precisa se cadastrar antes de ver seu bolão.")
-    st.page_link("streamlit_app.py", label="⬅️ Voltar para o cadastro")
+    st.page_link(home_page, label="⬅️ Voltar para o cadastro")
     st.stop()
 
 st.title("🏆 Meu Bolão")
@@ -18,7 +17,7 @@ teams_by_id = {team["id"]: team for group in groups for team in group["teams"]}
 
 if not picks:
     st.info("Você ainda não salvou nenhum palpite.")
-    st.page_link("pages/1_Palpites.py", label="📝 Fazer palpites")
+    st.page_link(palpites_page, label="Fazer palpites")
 else:
     st.subheader("Seus palpites por grupo")
 

@@ -1,12 +1,11 @@
 import streamlit as st
 
 from utils.db import get_groups_with_teams, get_predictions, save_predictions
-
-st.set_page_config(page_title="Palpites - Bolão 2026", page_icon="📝", layout="wide")
+from utils.nav import home_page
 
 if not st.session_state.get("participant_id"):
     st.warning("Você precisa se cadastrar antes de fazer seus palpites.")
-    st.page_link("streamlit_app.py", label="⬅️ Voltar para o cadastro")
+    st.page_link(home_page, label="⬅️ Voltar para o cadastro")
     st.stop()
 
 st.title("📝 Palpites - Fase de Grupos")
