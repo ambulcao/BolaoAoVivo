@@ -1,5 +1,6 @@
 import streamlit as st
 
+from utils.bracket import STAGE_NAMES, build_round_of_32, simulate_bracket
 from utils.db import get_groups_with_teams, get_predictions
 from utils.nav import palpites_page, home_page
 
@@ -39,28 +40,55 @@ else:
 st.divider()
 
 st.subheader("Mata-mata")
-st.caption(
-    "Estrutura ilustrativa do mata-mata. Os confrontos reais dependerão do "
-    "resultado da fase de grupos e do sorteio dos 8 melhores terceiros colocados."
-)
 
-round_of_32 = [
-    "1º A vs 2º B", "1º C vs 2º D", "1º E vs 2º F", "1º G vs 2º H",
-    "1º I vs 2º J", "1º K vs 2º L", "1º B vs 3º (melhor)", "1º D vs 3º (melhor)",
-    "1º F vs 3º (melhor)", "1º H vs 3º (melhor)", "1º J vs 3º (melhor)", "1º L vs 3º (melhor)",
-    "2º A vs 2º C", "2º E vs 2º G", "2º I vs 2º K", "3º (melhor) vs 3º (melhor)",
-]
+if len(picks) < len(groups):
+    st.info(
+        "Complete os palpites de todos os 12 grupos para gerar o seu chaveamento "
+        "completo, da Rodada de 32 até o campeão."
+    )
+    st.page_link(palpites_page, label="Fazer palpites")
+else:
+    st.caption(
+        "Chaveamento gerado a partir dos seus palpites de grupo. Os 8 melhores "
+        "terceiros colocados (sorteio único, válido para todos os participantes) e "
+        "os vencedores de cada fase são sorteados automaticamente."
+    )
 
-bracket_cols = st.columns(4)
-stage_names = ["Rodada de 32", "Oitavas de Final", "Quartas de Final", "Semifinal / Final"]
-stage_sizes = [16, 8, 4, 2]
+    round_of_32 = build_round_of_32(groups, picks)
+    rounds, winners_per_round, champion = simulate_bracket(
+        st.session_state["participant_id"], round_of_32
+    )
 
-for col, stage, size in zip(bracket_cols, stage_names, stage_sizes):
-    with col:
-        st.markdown(f"**{stage}**")
-        if stage == "Rodada de 32":
-            for matchup in round_of_32:
-                st.markdown(f"<div style='border:1px solid #ddd;border-radius:6px;padding:4px 8px;margin-bottom:6px;font-size:0.85em;'>{matchup}</div>", unsafe_allow_html=True)
-        else:
-            for n in range(size):
-                st.markdown(f"<div style='border:1px solid #ddd;border-radius:6px;padding:4px 8px;margin-bottom:6px;font-size:0.85em;color:#999;'>A definir</div>", unsafe_allow_html=True)
+    def team_box(team, is_winner):
+        style = (
+            "border:1px solid #1a7f37;background-color:#eaf5ec;font-weight:600;"
+            if is_winner
+            else "border:1px solid #ddd;color:#666;"
+        )
+        return (
+            f"<div style='{style}border-radius:6px;padding:4px 8px;"
+            f"margin-bottom:4px;font-size:0.85em;'>{team['flag_emoji']} {team['name']}</div>"
+        )
+
+    bracket_cols = st.columns(len(rounds))
+    for col, stage, matches, winners in zip(bracket_cols, STAGE_NAMES, rounds, winners_per_round):
+        with col:
+            st.markdown(f"**{stage}**")
+            for match, winner in zip(matches, winners):
+                team_a, team_b = match
+                st.markdown(team_box(team_a, team_a == winner), unsafe_allow_html=True)
+                st.markdown(team_box(team_b, team_b == winner), unsafe_allow_html=True)
+                st.markdown("<div style='margin-bottom:10px;'></div>", unsafe_allow_html=True)
+
+    st.divider()
+    st.markdown(
+        f"""
+        <div style="background-color:#1a7f37;padding:1rem;border-radius:8px;text-align:center;">
+            <span style="color:white;font-size:1.1em;">🏆 Campeão</span><br>
+            <span style="color:white;font-size:1.5em;font-weight:700;">
+                {champion['flag_emoji']} {champion['name']}
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
